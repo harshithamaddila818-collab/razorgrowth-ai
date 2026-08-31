@@ -1,0 +1,8 @@
+.env
+__pycache__/
+*.pyc
+
+audit/audit_log.json
+# Backup files
+*_backup.*
+*_before_final.*
