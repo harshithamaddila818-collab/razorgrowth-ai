@@ -7,25 +7,65 @@ import razorpay
 
 
 # --------------------------------------------------
-# Load environment variables
+# Load local .env when running locally
 # --------------------------------------------------
 
 load_dotenv()
 
 
 # --------------------------------------------------
-# Razorpay credentials
+# Read credentials
+# Supports both:
+# 1. Local .env
+# 2. Streamlit Cloud Secrets
 # --------------------------------------------------
+
+try:
+    import streamlit as st
+except ImportError:
+    st = None
+
 
 key_id = os.getenv("RAZORPAY_KEY_ID")
 key_secret = os.getenv("RAZORPAY_KEY_SECRET")
 
+
+# Streamlit Cloud fallback
+if (not key_id or not key_secret) and st is not None:
+
+    try:
+        key_id = st.secrets.get(
+            "RAZORPAY_KEY_ID",
+            key_id
+        )
+
+        key_secret = st.secrets.get(
+            "RAZORPAY_KEY_SECRET",
+            key_secret
+        )
+
+    except Exception:
+        pass
+
+
+# --------------------------------------------------
+# Validate Razorpay credentials
+# --------------------------------------------------
+
 if not key_id or not key_secret:
+
     raise ValueError(
-        "Razorpay credentials not found in .env"
+        "Razorpay credentials are not configured."
     )
 
 
+# --------------------------------------------------
+# Razorpay Client
+# --------------------------------------------------
+
+client = razorpay.Client(
+    auth=(key_id, key_secret)
+)
 # --------------------------------------------------
 # Razorpay Client
 # --------------------------------------------------
